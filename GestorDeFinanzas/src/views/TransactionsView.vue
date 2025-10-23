@@ -49,6 +49,7 @@ const settingsStore = useSettingsStore()
   margin-bottom: 8px;
   border-radius: 6px;
   background-color: #f1f1f1;
+  width: 20em;
 }
 
 .transactions li.income {
