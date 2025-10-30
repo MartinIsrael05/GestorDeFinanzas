@@ -18,6 +18,14 @@
 
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { useTransactionsStore } from './store/transactions'
+
+const store = useTransactionsStore()
+
+onMounted(() => {
+  store.loadFromLocalStorage()
+})
 </script>
 
 <style>

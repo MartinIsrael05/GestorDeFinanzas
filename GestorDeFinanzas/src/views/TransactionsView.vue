@@ -1,62 +1,87 @@
 <template>
   <div class="transactions">
-    <h1>Transacciones</h1>
+    <h2>Transacciones</h2>
 
-    <ul v-if="transactionsStore.transactions.length">
-      <li 
-        v-for="t in transactionsStore.transactions" 
-        :key="t.id"
-        :class="t.type"
-      >
-        <span>{{ t.date }}</span>
-        <span>{{ t.category }}</span>
-        <span>{{ t.type === 'income' ? '+' : '-' }}{{ t.amount.toLocaleString('es-AR') }} {{ settingsStore.currency }}</span>
-      </li>
-    </ul>
+    <div v-if="transactions.length === 0" class="empty">
+      <p>No hay transacciones registradas todavía.</p>
+    </div>
 
-    <p v-else>No hay transacciones registradas.</p>
+    <table v-else>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Categoría</th>
+          <th>Monto</th>
+          <th>Descripción</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(t, i) in transactions" :key="i">
+          <td :class="t.type">{{ t.type === 'income' ? 'Ingreso' : 'Gasto' }}</td>
+          <td>{{ t.category }}</td>
+          <td>${{ t.amount }}</td>
+          <td>{{ t.description || '-' }}</td>
+          <td>{{ t.date }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script setup>
 import { useTransactionsStore } from '../store/transactions'
-import { useSettingsStore } from '../store/settings'
+import { storeToRefs } from 'pinia'
 
-const transactionsStore = useTransactionsStore()
-const settingsStore = useSettingsStore()
+const store = useTransactionsStore()
+const { transactions } = storeToRefs(store)
 </script>
 
 <style scoped>
 .transactions {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.transactions h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+h2 {
+  text-align: center;
+  color: #0275d8;
 }
 
-.transactions ul {
-  list-style: none;
-  padding: 0;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.transactions li {
-  display: flex;
-  justify-content: space-between;
+th,
+td {
+  border-bottom: 1px solid #ddd;
   padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  text-align: left;
+}
+
+th {
   background-color: #f1f1f1;
-  width: 20em;
 }
 
-.transactions li.income {
-  border-left: 6px solid #5cb85c;
+.income {
+  color: green;
+  font-weight: bold;
 }
 
-.transactions li.expense {
-  border-left: 6px solid #d9534f;
+.expense {
+  color: red;
+  font-weight: bold;
+}
+
+.empty {
+  text-align: center;
+  color: #666;
+  padding: 30px 0;
 }
 </style>
