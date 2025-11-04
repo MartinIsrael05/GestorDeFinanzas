@@ -13,7 +13,7 @@
           </div>
           <div class="summary-item expense">
             <span>Gastos</span>
-            <p>${{ totalExpense }}</p>  
+            <p>${{ totalExpense }}</p>
           </div>
           <div class="summary-item balance">
             <span>Balance Actual</span>
@@ -29,11 +29,8 @@
         <p>Restante: ${{ remainingBudget }}</p>
 
         <div class="progress-bar-container">
-          <div
-            class="progress-bar"
-            :style="{ width: budgetUsedPercent + '%' }"
-            :class="{ warning: budgetUsedPercent >= 80 }"
-          ></div>
+          <div class="progress-bar" :style="{ width: budgetUsedPercent + '%' }"
+            :class="{ warning: budgetUsedPercent >= 80 }"></div>
         </div>
         <p class="progress-text">{{ budgetUsedPercent.toFixed(0) }}% usado</p>
 
@@ -57,6 +54,13 @@
         </div>
       </div>
     </div>
+    <section class="charts-section">
+      <h3>Visualización de datos</h3>
+      <div class="charts-grid">
+        <CategoryChart />
+        <MonthlyComparisonChart />
+      </div>
+    </section>
   </div>
 </template>
 
@@ -66,6 +70,8 @@ import { storeToRefs } from 'pinia'
 import { useTransactionsStore } from '../store/transactions'
 import { useSettingsStore } from '../store/settings'
 import { RouterLink } from 'vue-router'
+import CategoryChart from '../components/charts/CategoryChart.vue'
+import MonthlyComparisonChart from '../components/charts/MonthlyComparisonChart.vue'
 
 const transactionsStore = useTransactionsStore()
 const settingsStore = useSettingsStore()
@@ -97,7 +103,6 @@ const latestTransactions = computed(() =>
 <style scoped>
 .dashboard {
   display: flex;
-  flex-direction: column;
   gap: 25px;
   padding: 20px;
 }
@@ -149,12 +154,15 @@ const latestTransactions = computed(() =>
 .income p {
   color: #28a745;
 }
+
 .expense p {
   color: #dc3545;
 }
+
 .balance p {
   color: #333;
 }
+
 .balance p.negative {
   color: #d9534f;
 }
@@ -208,6 +216,7 @@ const latestTransactions = computed(() =>
 .transactions li.income strong {
   color: #28a745;
 }
+
 .transactions li.expense strong {
   color: #dc3545;
 }
@@ -235,4 +244,23 @@ const latestTransactions = computed(() =>
 .btn:hover {
   opacity: 0.9;
 }
+/* charts */
+.charts-section {
+  margin-top: 30px;
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.chart-container {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  transition: transform 0.3s ease;
+}
+.chart-container:hover {
+  transform: scale(1.03);
+}
+
 </style>

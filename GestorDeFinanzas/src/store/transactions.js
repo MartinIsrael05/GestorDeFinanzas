@@ -28,6 +28,29 @@ export const useTransactionsStore = defineStore('transactions', {
         ? `⚠️ Has gastado el ${used.toFixed(0)}% de tu presupuesto.`
         : null
     },
+      // gastos agrupados por categoría
+  expensesByCategory: (state) => {
+    const grouped = {}
+    state.transactions.forEach(t => {
+      if (t.type === 'expense') {
+        grouped[t.category] = (grouped[t.category] || 0) + t.amount
+      }
+    })
+    return grouped
+  },
+
+  // resumen mensual
+  monthlySummary: (state) => {
+    const summary = {}
+    state.transactions.forEach(t => {
+      const month = t.date.slice(0, 7) // formato YYYY-MM
+      if (!summary[month]) {
+        summary[month] = { income: 0, expense: 0 }
+      }
+      summary[month][t.type] += t.amount
+    })
+    return summary
+  }
   },
 
   actions: {
