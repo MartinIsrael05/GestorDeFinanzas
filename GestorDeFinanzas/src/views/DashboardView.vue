@@ -1,207 +1,238 @@
 <template>
   <div class="dashboard">
-    <h2>Resumen General</h2>
+    <h2 class="dashboard-title">Resumen General</h2>
 
-    <div class="cards">
-      <div class="card income">
-        <h3>Ingresos</h3>
-        <p>${{ totalIncome }}</p>
-      </div>
-
-      <div class="card expense">
-        <h3>Gastos</h3>
-        <p>${{ totalExpenses }}</p>
-      </div>
-
-      <div class="card balance">
-        <h3>Balance Actual</h3>
-        <p>${{ balance }}</p>
-      </div>
-    </div>
-
-    <div class="budget-section">
-      <h3>Presupuesto</h3>
-      <p>
-        Presupuesto total: <strong>${{ monthlyBudget }}</strong><br />
-        Presupuesto restante:
-        <strong
-          :class="{ warning: remainingBudget < monthlyBudget * 0.2 }"
-        >
-          ${{ remainingBudget }}
-        </strong>
-      </p>
-
-      <div class="progress-bar">
-        <div
-          class="progress-fill"
-          :style="{
-            width: progressPercentage + '%',
-            backgroundColor: progressColor
-          }"
-        >
-          <span
-            class="progress-text"
-            :style="{ color: textColor }"
-          >
-            {{ progressPercentage.toFixed(0) }}%
-          </span>
+    <div class="dashboard-grid">
+      <!-- Tarjeta de resumen -->
+      <div class="card summary">
+        <h3>Balance General</h3>
+        <div class="summary-values">
+          <div class="summary-item income">
+            <span>Ingresos</span>
+            <p>${{ totalIncome }}</p>
+          </div>
+          <div class="summary-item expense">
+            <span>Gastos</span>
+            <p>${{ totalExpense }}</p>  
+          </div>
+          <div class="summary-item balance">
+            <span>Balance Actual</span>
+            <p :class="{ negative: balance < 0 }">${{ balance }}</p>
+          </div>
         </div>
       </div>
 
-      <p v-if="alertBudget" class="alert">
-        ⚠️ ¡Has superado el 80% de tu presupuesto mensual!
-      </p>
+      <!-- Tarjeta de presupuesto -->
+      <div class="card budget">
+        <h3>Presupuesto</h3>
+        <p>Presupuesto total: ${{ monthlyBudget }}</p>
+        <p>Restante: ${{ remainingBudget }}</p>
+
+        <div class="progress-bar-container">
+          <div
+            class="progress-bar"
+            :style="{ width: budgetUsedPercent + '%' }"
+            :class="{ warning: budgetUsedPercent >= 80 }"
+          ></div>
+        </div>
+        <p class="progress-text">{{ budgetUsedPercent.toFixed(0) }}% usado</p>
+
+        <p v-if="budgetAlert" class="alert">
+          ⚠️ ¡Has superado el 80% de tu presupuesto mensual!
+        </p>
+      </div>
+
+      <!-- 🧾 Últimas transacciones -->
+      <div class="card transactions">
+        <h3>Últimas transacciones</h3>
+        <ul>
+          <li v-for="t in latestTransactions" :key="t.id" :class="t.type">
+            <span>{{ t.category }} - {{ t.description || 'Sin descripción' }}</span>
+            <strong>{{ t.type === 'income' ? '+' : '-' }}${{ t.amount }}</strong>
+          </li>
+        </ul>
+        <div class="buttons">
+          <RouterLink to="/transactions" class="btn">Ver todas</RouterLink>
+          <RouterLink to="/add" class="btn primary">Agregar transacción</RouterLink>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTransactionsStore } from '../store/transactions'
 import { useSettingsStore } from '../store/settings'
-import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const transactionsStore = useTransactionsStore()
 const settingsStore = useSettingsStore()
-
 const { transactions } = storeToRefs(transactionsStore)
-const { monthlyBudget } = storeToRefs(settingsStore)
 
 // Totales
 const totalIncome = computed(() =>
-  transactions.value
-    .filter(t => t.type === 'income')
-    .reduce((acc, t) => acc + t.amount, 0)
+  transactions.value.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0)
 )
-
-const totalExpenses = computed(() =>
-  transactions.value
-    .filter(t => t.type === 'expense')
-    .reduce((acc, t) => acc + t.amount, 0)
+const totalExpense = computed(() =>
+  transactions.value.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0)
 )
+const balance = computed(() => totalIncome.value - totalExpense.value)
 
-const balance = computed(() => totalIncome.value - totalExpenses.value)
+// Presupuesto
+const monthlyBudget = computed(() => settingsStore.monthlyBudget)
+const remainingBudget = computed(() => monthlyBudget.value - totalExpense.value)
+const budgetUsedPercent = computed(() =>
+  Math.min((totalExpense.value / monthlyBudget.value) * 100, 100)
+)
+const budgetAlert = computed(() => budgetUsedPercent.value >= 80)
 
-// Presupuesto restante
-const remainingBudget = computed(() => {
-  const remaining = monthlyBudget.value - totalExpenses.value
-  return remaining >= 0 ? remaining : 0
-})
-
-// Porcentaje del presupuesto utilizado
-const progressPercentage = computed(() => {
-  if (monthlyBudget.value === 0) return 0
-  const percentage = (totalExpenses.value / monthlyBudget.value) * 100
-  return percentage > 100 ? 100 : percentage
-})
-
-// Color dinámico de la barra
-const progressColor = computed(() => {
-  const p = progressPercentage.value
-  if (p <= 50) return '#28a745' // verde
-  if (p <= 80) return '#ffc107' // amarillo
-  return '#dc3545' // rojo
-})
-
-// Texto legible según color de fondo
-const textColor = computed(() => {
-  const p = progressPercentage.value
-  return p <= 50 ? 'black' : 'white'
-})
-
-// Alerta cuando se supera el 80%
-const alertBudget = computed(() => {
-  return totalExpenses.value >= monthlyBudget.value * 0.8
-})
+// Últimas transacciones
+const latestTransactions = computed(() =>
+  transactions.value.slice(-5).reverse()
+)
 </script>
 
 <style scoped>
 .dashboard {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.cards {
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  gap: 15px;
-}
-
-.card {
-  flex: 1;
-  min-width: 150px;
-  background-color: #f6f7fb;
+  flex-direction: column;
+  gap: 25px;
   padding: 20px;
-  border-radius: 10px;
 }
 
-.card h3 {
-  margin-bottom: 5px;
-}
-
-.income p {
-  color: green;
-  font-weight: bold;
-}
-
-.expense p {
-  color: red;
-  font-weight: bold;
-}
-
-.balance p {
-  color: #333;
-  font-weight: bold;
-}
-
-/* Sección de presupuesto */
-.budget-section {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.budget-section h3 {
+.dashboard-title {
   color: #0275d8;
   margin-bottom: 10px;
 }
 
-.progress-bar {
-  width: 100%;
-  height: 30px;
-  background-color: #e6e6e6;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 15px 0;
-  position: relative;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  align-items: stretch;
 }
 
-.progress-fill {
-  height: 100%;
+/* --- Tarjetas --- */
+.card {
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: width 0.5s ease, background-color 0.5s ease;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* --- Balance general --- */
+.summary-values {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-item p {
+  font-weight: bold;
+}
+
+.income p {
+  color: #28a745;
+}
+.expense p {
+  color: #dc3545;
+}
+.balance p {
+  color: #333;
+}
+.balance p.negative {
+  color: #d9534f;
+}
+
+/* --- Presupuesto --- */
+.progress-bar-container {
+  background-color: #eee;
+  border-radius: 10px;
+  height: 15px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #0275d8;
+  transition: width 0.4s ease;
+}
+
+.progress-bar.warning {
+  background-color: #d9534f;
 }
 
 .progress-text {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.warning {
-  color: #d9534f;
+  text-align: right;
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #555;
 }
 
 .alert {
   color: #d9534f;
   font-weight: bold;
+  margin-top: 10px;
+}
+
+/* --- Últimas transacciones --- */
+.transactions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.transactions li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.transactions li.income strong {
+  color: #28a745;
+}
+.transactions li.expense strong {
+  color: #dc3545;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
   margin-top: 15px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background-color: #eee;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background-color: #0275d8;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 </style>
