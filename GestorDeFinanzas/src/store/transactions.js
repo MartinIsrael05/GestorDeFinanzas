@@ -25,7 +25,7 @@ export const useTransactionsStore = defineStore('transactions', {
       const settingsStore = useSettingsStore()
       const used = (this.totalExpenses / settingsStore.monthlyBudget) * 100
       return used >= 80
-        ? `⚠️ Has gastado el ${used.toFixed(0)}% de tu presupuesto.`
+        ? `Has gastado el ${used.toFixed(0)}% de tu presupuesto.`
         : null
     },
       // gastos agrupados por categoría
@@ -54,19 +54,19 @@ export const useTransactionsStore = defineStore('transactions', {
   },
 
   actions: {
-    // 🔹 Agregar una transacción
+    // Agregar una transacción
     addTransaction(transaction) {
       transaction.id = Date.now()
       this.transactions.push(transaction)
       this.saveToLocalStorage() // guardar después de agregar
     },
 
-    // 🔹 Guardar en localStorage
+    // Guardar en localStorage
     saveToLocalStorage() {
       localStorage.setItem('transactions', JSON.stringify(this.transactions))
     },
 
-    // 🔹 Cargar desde localStorage
+    // Cargar desde localStorage
     loadFromLocalStorage() {
       const saved = localStorage.getItem('transactions')
       if (saved) {
@@ -74,10 +74,10 @@ export const useTransactionsStore = defineStore('transactions', {
       }
     },
 
-    // 🔹 Borrar todo (opcional)
+    /* Borrar todo (opcional)
     clearAll() {
       this.transactions = []
       localStorage.removeItem('transactions')
-    },
+    },*/
   },
 })

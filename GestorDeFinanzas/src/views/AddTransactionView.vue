@@ -72,7 +72,12 @@ const form = reactive({
 const message = ref('')
 
 // Categorías por tipo
-const incomeCategories = ['Sueldo', 'Venta', 'Regalo', 'Otros ingresos']
+const incomeCategories = [
+  'Sueldo', 
+  'Venta', 
+  'Regalo', 
+  'Otros ingresos',
+]
 const expenseCategories = [
   'Comida',
   'Transporte',
@@ -102,7 +107,7 @@ function addTransaction() {
   })
 
   // Mensaje temporal
-  message.value = 'Transacción agregada ✅'
+  message.value = 'Transacción agregada ;)'
   setTimeout(() => (message.value = ''), 2000)
 
   // Reset del formulario

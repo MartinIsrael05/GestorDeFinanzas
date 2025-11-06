@@ -2,7 +2,7 @@
   <div id="app">
     <header class="app-header">
       <div class="header-content">
-        <h1 class="logo">💰 Mi Balance</h1>
+        <h1 class="logo">Mi Balance</h1>
 
         <nav class="nav">
           <RouterLink to="/" exact-active-class="active-link">Inicio</RouterLink>

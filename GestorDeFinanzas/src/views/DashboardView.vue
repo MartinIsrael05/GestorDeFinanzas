@@ -3,7 +3,6 @@
     <h2 class="dashboard-title">Resumen General</h2>
 
     <div class="dashboard-grid">
-      <!-- Tarjeta de resumen -->
       <div class="card summary">
         <h3>Balance General</h3>
         <div class="summary-values">
@@ -35,11 +34,11 @@
         <p class="progress-text">{{ budgetUsedPercent.toFixed(0) }}% usado</p>
 
         <p v-if="budgetAlert" class="alert">
-          ⚠️ ¡Has superado el 80% de tu presupuesto mensual!
+           ¡Has superado el 80% de tu presupuesto mensual!
         </p>
       </div>
 
-      <!-- 🧾 Últimas transacciones -->
+      <!-- Últimas transacciones -->
       <div class="card transactions">
         <h3>Últimas transacciones</h3>
         <ul>
@@ -55,7 +54,6 @@
       </div>
     </div>
     <section class="charts-section">
-      <h3>Visualización de datos</h3>
       <div class="charts-grid">
         <CategoryChart />
         <MonthlyComparisonChart />
@@ -245,9 +243,6 @@ const latestTransactions = computed(() =>
   opacity: 0.9;
 }
 /* charts */
-.charts-section {
-  margin-top: 30px;
-}
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
