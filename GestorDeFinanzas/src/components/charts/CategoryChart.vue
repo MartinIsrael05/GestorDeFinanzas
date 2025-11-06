@@ -121,7 +121,7 @@ watch(transactions, renderCharts)
 .chart-section {
   text-align: center;
   flex: 1;
-  min-width: 300px;
+  min-width: 320px;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
