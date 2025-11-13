@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <!-- 🔹 Selector de mes/año -->
+    <!-- Selector de mes/año -->
     <div class="month-selector">
       <label for="month">Seleccionar mes:</label>
       <select id="month" v-model="selectedMonth">
@@ -64,9 +64,38 @@
       </div>
     </div>
     <section class="charts-section">
-      <div class="charts-grid">
-        <CategoryChart :selectedMonth="selectedMonth" />
-        <MonthlyComparisonChart />
+      <div class="charts-area">
+        <div class="charts-grid">
+          <CategoryChart :selectedMonth="selectedMonth" />
+          <MonthlyComparisonChart />
+        </div>
+      </div>
+
+      <!-- Panel de proyección -->
+      <div class="projection-panel">
+        <div class="card projection">
+          <h3>Proyección para {{ nextMonthLabel }}</h3>
+          <p class="muted">Basado en los 2 meses anteriores a <strong>{{ currentMonthLabel }}</strong></p>
+
+          <div class="projection-values">
+            <div class="proj-item">
+              <span>Gasto estimado</span>
+              <p class="amount">${{ projectedExpense }}</p>
+            </div>
+            <div class="proj-item">
+              <span>Ingreso estimado</span>
+              <p class="amount">${{ projectedIncome }}</p>
+            </div>
+            <div class="proj-item balance">
+              <span>Balance proyectado</span>
+              <p :class="{ negative: projectedBalance < 0 }">${{ projectedBalance }}</p>
+            </div>
+          </div>
+
+          <p class="note">
+            Proyección simple: promedio de gastos/ingresos de los 2 meses previos.
+          </p>
+        </div>
       </div>
     </section>
   </div>
@@ -85,24 +114,26 @@ const transactionsStore = useTransactionsStore()
 const settingsStore = useSettingsStore()
 const { transactions } = storeToRefs(transactionsStore)
 
-// Generar meses disponibles (últimos 6 meses desde noviembre 2025)
+// Etiquetas de meses reutilizables
+const monthLabels = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+]
+
+// Generar los meses disponibles (últimos 6 meses desde noviembre 2025)
 const availableMonths = computed(() => {
   const months = []
-  const monthLabels = [
-  'Enero', 
-  'Febrero', 
-  'Marzo', 
-  'Abril', 
-  'Mayo', 
-  'Junio', 
-  'Julio', 
-  'Agosto', 
-  'Septiembre', 
-  'Octubre', 
-  'Noviembre', 
-  'Diciembre'
-]
-  
+
   // Comenzar desde noviembre 2025 e ir 6 meses atrás
   for (let i = 0; i < 6; i++) {
     const month = 11 - i // 11, 10, 9, 8, 7, 6
@@ -110,7 +141,7 @@ const availableMonths = computed(() => {
     const value = `2025-${String(month).padStart(2, '0')}`
     months.push({ label: `${label} 2025`, value })
   }
-  
+
   return months.reverse() // Mostrar de junio a noviembre
 })
 
@@ -121,6 +152,15 @@ const selectedMonth = ref('2025-11')
 const currentMonthLabel = computed(() => {
   const found = availableMonths.value.find(m => m.value === selectedMonth.value)
   return found ? found.label : ''
+})
+
+// Label del mes siguiente (por ejemplo, si selectedMonth = '2025-11' -> 'Diciembre 2025')
+const nextMonthLabel = computed(() => {
+  const [y, m] = selectedMonth.value.split('-').map(Number)
+  const d = new Date(y, m - 1)
+  d.setMonth(d.getMonth() + 1)
+  const label = monthLabels[d.getMonth()]
+  return `${label} ${d.getFullYear()}`
 })
 
 // Filtrar transacciones por mes seleccionado
@@ -149,6 +189,37 @@ const budgetAlert = computed(() => budgetUsedPercent.value >= 80)
 const latestTransactions = computed(() =>
   filteredTransactions.value.slice(-5).reverse()
 )
+
+// --- Proyección para el siguiente mes basada en los 2 meses anteriores ---
+// Helper: devuelve YYYY-MM restando `n` meses a un YYYY-MM dado
+function getPrevMonthKey(baseYm, n) {
+  const [y, m] = baseYm.split('-').map(Number)
+  const date = new Date(y, m - 1)
+  date.setMonth(date.getMonth() - n)
+  const yy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  return `${yy}-${mm}`
+}
+
+const expenseForMonth = (monthKey) =>
+  transactions.value
+    .filter(t => t.date.startsWith(monthKey) && t.type === 'expense')
+    .reduce((acc, t) => acc + t.amount, 0)
+
+const incomeForMonth = (monthKey) =>
+  transactions.value
+    .filter(t => t.date.startsWith(monthKey) && t.type === 'income')
+    .reduce((acc, t) => acc + t.amount, 0)
+
+const expensePrev1 = computed(() => expenseForMonth(getPrevMonthKey(selectedMonth.value, 1)))
+const expensePrev2 = computed(() => expenseForMonth(getPrevMonthKey(selectedMonth.value, 2)))
+const incomePrev1 = computed(() => incomeForMonth(getPrevMonthKey(selectedMonth.value, 1)))
+const incomePrev2 = computed(() => incomeForMonth(getPrevMonthKey(selectedMonth.value, 2)))
+
+// Proyección simple: promedio de los 2 meses anteriores
+const projectedExpense = computed(() => Math.round((expensePrev1.value + expensePrev2.value) / 2))
+const projectedIncome = computed(() => Math.round((incomePrev1.value + incomePrev2.value) / 2))
+const projectedBalance = computed(() => projectedIncome.value - projectedExpense.value)
 </script>
 
 <style scoped>
@@ -340,6 +411,58 @@ const latestTransactions = computed(() =>
 }
 .chart-container:hover {
   transform: scale(1.03);
+}
+
+/* Layout para charts + proyección */
+.charts-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.projection-panel {
+  display: flex;
+  flex-direction: column;
+  width: 25em;
+}
+
+.card.projection {
+  padding: 18px;
+}
+
+.projection .muted {
+  color: #666;
+  font-size: 0.95em;
+  margin-bottom: 12px;
+}
+
+.projection-values {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.proj-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.proj-item .amount {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.proj-item.balance .amount {
+  font-size: 1.1em;
+}
+
+.note {
+  margin-top: 12px;
+  font-size: 0.9em;
+  color: #555;
 }
 
 </style>
