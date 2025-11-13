@@ -29,19 +29,32 @@ Chart.register(PieController, ArcElement, Tooltip, Legend)
 const expenseChart = ref(null)
 const incomeChart = ref(null)
 
+// Recibir el mes seleccionado como prop
+const props = defineProps({
+  selectedMonth: {
+    type: String,
+    required: true,
+  },
+})
+
 const store = useTransactionsStore()
 const { transactions } = storeToRefs(store)
 
 let expenseChartInstance = null
 let incomeChartInstance = null
 
+// Filtrar transacciones según el mes seleccionado
+const getFilteredTransactions = () => {
+  return transactions.value.filter(t => t.date.startsWith(props.selectedMonth))
+}
+
 // Crea los dos gráficos
 const renderCharts = () => {
   const expensesByCategory = {}
   const incomeByCategory = {}
 
-  // Clasifica las transacciones por categoría y tipo
-  transactions.value.forEach(t => {
+  // Clasifica las transacciones filtradas por categoría y tipo
+  getFilteredTransactions().forEach(t => {
     if (t.type === 'expense') {
       expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount
     } else if (t.type === 'income') {
@@ -107,7 +120,7 @@ const renderCharts = () => {
 }
 
 onMounted(renderCharts)
-watch(transactions, renderCharts)
+watch([transactions, () => props.selectedMonth], renderCharts)
 </script>
 
 <style scoped>

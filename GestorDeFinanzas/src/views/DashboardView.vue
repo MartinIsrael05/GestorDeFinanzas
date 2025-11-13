@@ -1,6 +1,16 @@
 <template>
   <div class="dashboard">
-    <h2 class="dashboard-title">Resumen General</h2>
+    <!-- 🔹 Selector de mes/año -->
+    <div class="month-selector">
+      <label for="month">Seleccionar mes:</label>
+      <select id="month" v-model="selectedMonth">
+        <option v-for="m in availableMonths" :key="m.value" :value="m.value">
+          {{ m.label }}
+        </option>
+      </select>
+    </div>
+
+    <h2 class="dashboard-title">Resumen General - {{ currentMonthLabel }}</h2>
 
     <div class="dashboard-grid">
       <div class="card summary">
@@ -55,7 +65,7 @@
     </div>
     <section class="charts-section">
       <div class="charts-grid">
-        <CategoryChart />
+        <CategoryChart :selectedMonth="selectedMonth" />
         <MonthlyComparisonChart />
       </div>
     </section>
@@ -63,7 +73,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTransactionsStore } from '../store/transactions'
 import { useSettingsStore } from '../store/settings'
@@ -75,16 +85,59 @@ const transactionsStore = useTransactionsStore()
 const settingsStore = useSettingsStore()
 const { transactions } = storeToRefs(transactionsStore)
 
-// Totales
+// Generar meses disponibles (últimos 6 meses desde noviembre 2025)
+const availableMonths = computed(() => {
+  const months = []
+  const monthLabels = [
+  'Enero', 
+  'Febrero', 
+  'Marzo', 
+  'Abril', 
+  'Mayo', 
+  'Junio', 
+  'Julio', 
+  'Agosto', 
+  'Septiembre', 
+  'Octubre', 
+  'Noviembre', 
+  'Diciembre'
+]
+  
+  // Comenzar desde noviembre 2025 e ir 6 meses atrás
+  for (let i = 0; i < 6; i++) {
+    const month = 11 - i // 11, 10, 9, 8, 7, 6
+    const label = monthLabels[month - 1]
+    const value = `2025-${String(month).padStart(2, '0')}`
+    months.push({ label: `${label} 2025`, value })
+  }
+  
+  return months.reverse() // Mostrar de junio a noviembre
+})
+
+// Mes seleccionado (por defecto noviembre 2025)
+const selectedMonth = ref('2025-11')
+
+// Etiqueta del mes actual
+const currentMonthLabel = computed(() => {
+  const found = availableMonths.value.find(m => m.value === selectedMonth.value)
+  return found ? found.label : ''
+})
+
+// Filtrar transacciones por mes seleccionado
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(t => t.date.startsWith(selectedMonth.value))
+})
+
+// Totales (basados en el mes filtrado)
 const totalIncome = computed(() =>
-  transactions.value.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0)
+  filteredTransactions.value.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0)
 )
 const totalExpense = computed(() =>
-  transactions.value.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0)
+  filteredTransactions.value.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0)
 )
 const balance = computed(() => totalIncome.value - totalExpense.value)
 
-// Presupuesto
+// Presupuesto (basado en gastos del mes)
 const monthlyBudget = computed(() => settingsStore.monthlyBudget)
 const remainingBudget = computed(() => monthlyBudget.value - totalExpense.value)
 const budgetUsedPercent = computed(() =>
@@ -92,13 +145,44 @@ const budgetUsedPercent = computed(() =>
 )
 const budgetAlert = computed(() => budgetUsedPercent.value >= 80)
 
-// Últimas transacciones
+// Últimas transacciones (del mes filtrado)
 const latestTransactions = computed(() =>
-  transactions.value.slice(-5).reverse()
+  filteredTransactions.value.slice(-5).reverse()
 )
 </script>
 
 <style scoped>
+.month-selector {
+  margin-bottom: 20px;
+  align-items: center;
+  gap: 10px;
+}
+
+.month-selector label {
+  font-weight: 600;
+  color: #333;
+}
+
+.month-selector select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: white;
+  color: #333;
+}
+
+.month-selector select:hover {
+  border-color: #0275d8;
+}
+
+.month-selector select:focus {
+  outline: none;
+  border-color: #0275d8;
+  box-shadow: 0 0 0 3px rgba(2, 117, 216, 0.1);
+}
+
 .dashboard {
   display: flex;
   gap: 25px;
