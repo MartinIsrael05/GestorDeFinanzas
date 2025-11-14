@@ -45,6 +45,17 @@
         />
       </div>
 
+      <!-- Fecha -->
+      <div class="form-group">
+        <label for="date">Fecha</label>
+        <input
+          type="date"
+          id="date"
+          v-model="form.date"
+          required
+        />
+      </div>
+
       <button type="submit">Agregar</button>
     </form>
 
@@ -66,6 +77,7 @@ const form = reactive({
   category: '',
   amount: null,
   description: '',
+  date: '',
 })
 
 // Mensaje temporal
@@ -93,7 +105,7 @@ const availableCategories = computed(() =>
 
 // Función para agregar la transacción al store
 function addTransaction() {
-  if (!form.category || !form.amount) return
+  if (!form.category || !form.amount || !form.date) return
 
   // Mapear tipo a 'income' o 'expense' para el store
   const type = form.type === 'ingreso' ? 'income' : 'expense'
@@ -103,7 +115,7 @@ function addTransaction() {
     category: form.category,
     amount: form.amount,
     description: form.description,
-    date: new Date().toISOString().split('T')[0], // fecha actual
+    date: form.date, 
   })
 
   // Mensaje temporal
@@ -114,6 +126,7 @@ function addTransaction() {
   form.category = ''
   form.amount = null
   form.description = ''
+  form.date = ''
 }
 </script>
 

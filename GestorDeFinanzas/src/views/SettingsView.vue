@@ -8,16 +8,6 @@
       <button @click="updateBudget">Actualizar</button>
       <p>Presupuesto actual: {{ settingsStore.monthlyBudget.toLocaleString('es-AR') }} {{ settingsStore.currency }}</p>
     </section>
-
-    <section>
-      <h2>Categorías</h2>
-      <ul>
-        <li v-for="cat in settingsStore.categories" :key="cat">{{ cat }}</li>
-      </ul>
-
-      <input type="text" v-model="newCategory" placeholder="Nueva categoría" />
-      <button @click="addCategory">Agregar</button>
-    </section>
   </div>
 </template>
 
@@ -31,15 +21,10 @@ const newCategory = ref('')
 
 function updateBudget() {
   settingsStore.updateBudget(newBudget.value)
-  alert('Presupuesto actualizado ✅')
+  alert('Presupuesto actualizado correctamente.')
 }
 
-function addCategory() {
-  if (newCategory.value && !settingsStore.categories.includes(newCategory.value)) {
-    settingsStore.categories.push(newCategory.value)
-    newCategory.value = ''
-  }
-}
+
 </script>
 
 <style scoped>
