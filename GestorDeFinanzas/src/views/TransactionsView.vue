@@ -56,7 +56,7 @@ const groupedMonths = computed(() => {
     groups[month].push(t)
   })
 
-  // ordenar meses (más reciente primero)
+  // ordenar meses (más reciente primero, 11-2025)
   const months = Object.keys(groups).filter(m => m !== 'unknown').sort((a,b) => b.localeCompare(a))
   if (groups['unknown']) months.push('unknown')
 

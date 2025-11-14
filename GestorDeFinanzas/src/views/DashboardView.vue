@@ -93,7 +93,7 @@
           </div>
 
           <p class="note">
-            Proyección simple: promedio de gastos/ingresos de los 2 meses previos.
+            Lógica de la Proyección: promedio de gastos/ingresos de los 2 meses previos.
           </p>
         </div>
       </div>
@@ -190,8 +190,8 @@ const latestTransactions = computed(() =>
   filteredTransactions.value.slice(-5).reverse()
 )
 
-// --- Proyección para el siguiente mes basada en los 2 meses anteriores ---
-// Helper: devuelve YYYY-MM restando `n` meses a un YYYY-MM dado
+// Proyección para el siguiente mes basada en los 2 meses anteriores
+// devuelve YYYY-MM restando `n` meses a un YYYY-MM dado
 function getPrevMonthKey(baseYm, n) {
   const [y, m] = baseYm.split('-').map(Number)
   const date = new Date(y, m - 1)
