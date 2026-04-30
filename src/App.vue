@@ -1,21 +1,22 @@
 <template>
-  <div id="app">
-    <header class="app-header">
-      <div class="header-content">
-        <h1 class="logo">Mi Balance</h1>
-
-        <nav class="nav">
-          <RouterLink to="/" exact-active-class="active-link">Inicio</RouterLink>
-          <RouterLink to="/transactions" exact-active-class="active-link">Transacciones</RouterLink>
-          <RouterLink to="/add" exact-active-class="active-link">Agregar</RouterLink>
-          <RouterLink to="/settings" exact-active-class="active-link">Configuración</RouterLink>
+  <div id="app" class="min-h-screen flex flex-col bg-background">
+    <header class="sticky top-0 z-30 bg-primary text-white shadow-lg">
+      <div class="grid grid-cols-1 md:grid-cols-3 items-center max-w-7xl mx-auto px-4 py-4 gap-2">
+        <h1 class="col-span-1 md:col-span-1 text-3xl md:text-4xl font-extrabold tracking-tight font-display drop-shadow-sm transition-all duration-500">Mi Balance</h1>
+        <nav class="col-span-1 md:col-span-2 flex flex-wrap justify-center md:justify-end gap-2 md:gap-4">
+          <RouterLink to="/" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Inicio</RouterLink>
+          <RouterLink to="/transactions" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Transacciones</RouterLink>
+          <RouterLink to="/add" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Agregar</RouterLink>
+          <RouterLink to="/settings" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Configuración</RouterLink>
         </nav>
       </div>
     </header>
-
-    <main>
+    <main class="flex-1 w-full max-w-7xl mx-auto px-2 md:px-8 py-8 transition-all duration-500">
       <RouterView />
     </main>
+    <footer class="bg-surface border-t border-muted py-6 text-center text-muted text-base mt-12 font-medium tracking-wide">
+      &copy; {{ new Date().getFullYear() }} <span class="font-bold">Mi Balance</span>. Todos los derechos reservados.
+    </footer>
   </div>
 </template>
 
@@ -34,77 +35,11 @@ onMounted(() => {
 </script>
 
 <style>
-/* --- Reset básico --- */
-body, html, #app {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-  background-color: #f4f6fa;
-  color: #222;
-}
-
-/* --- Header principal --- */
-.app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 65px;
-  background-color: #0275d8;
-  color: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-content {
-  width: 95%;
-  max-width: 1200px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  margin: 0;
-  font-size: 1.4em;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-/* --- Navegación --- */
-.nav {
-  display: flex;
-  gap: 20px;
-}
-
-.nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-}
-
-.nav a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
 .active-link {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-/* --- Contenido principal --- */
-main {
-  margin-top: 85px; /* deja espacio para el header fijo */
-  padding: 20px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
+  background-color: rgba(255,255,255,0.18) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px 0 rgba(37,99,235,0.10);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  transition: background-color 0.3s, box-shadow 0.3s, color 0.3s;
 }
 </style>

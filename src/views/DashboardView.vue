@@ -1,101 +1,92 @@
 <template>
-  <div class="dashboard">
+  <div class="flex flex-col gap-8">
     <!-- Selector de mes/año -->
-    <div class="month-selector">
-      <label for="month">Seleccionar mes:</label>
-      <select id="month" v-model="selectedMonth">
+    <div class="flex flex-col md:flex-row md:items-center md:gap-6 gap-2">
+      <label for="month" class="font-semibold text-muted">Seleccionar mes:</label>
+      <select id="month" v-model="selectedMonth" class="rounded-xl border border-muted px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary bg-white text-muted transition-all">
         <option v-for="m in availableMonths" :key="m.value" :value="m.value">
           {{ m.label }}
         </option>
       </select>
     </div>
 
-    <h2 class="dashboard-title">Resumen General - {{ currentMonthLabel }}</h2>
+    <h2 class="text-2xl font-bold text-primary mb-2">Resumen General - {{ currentMonthLabel }}</h2>
 
-    <div class="dashboard-grid">
-      <div class="card summary">
-        <h3>Balance General</h3>
-        <div class="summary-values">
-          <div class="summary-item income">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Balance General -->
+      <div class="bg-surface rounded-xl shadow-card p-6 flex flex-col gap-2 transition-all duration-300 hover:shadow-lg">
+        <h3 class="font-semibold text-lg mb-2 text-muted">Balance General</h3>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between items-center">
             <span>Ingresos</span>
-            <p>${{ totalIncome }}</p>
+            <p class="font-bold text-success">${{ totalIncome }}</p>
           </div>
-          <div class="summary-item expense">
+          <div class="flex justify-between items-center">
             <span>Gastos</span>
-            <p>${{ totalExpense }}</p>
+            <p class="font-bold text-danger">${{ totalExpense }}</p>
           </div>
-          <div class="summary-item balance">
+          <div class="flex justify-between items-center">
             <span>Balance Actual</span>
-            <p :class="{ negative: balance < 0 }">${{ balance }}</p>
+            <p :class="['font-bold', balance < 0 ? 'text-danger' : 'text-primary']">${{ balance }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Tarjeta de presupuesto -->
-      <div class="card budget">
-        <h3>Presupuesto</h3>
-        <p>Presupuesto total: ${{ monthlyBudget }}</p>
-        <p>Restante: ${{ remainingBudget }}</p>
-
-        <div class="progress-bar-container">
-          <div class="progress-bar" :style="{ width: budgetUsedPercent + '%' }"
-            :class="{ warning: budgetUsedPercent >= 80 }"></div>
+      <!-- Presupuesto -->
+      <div class="bg-surface rounded-xl shadow-card p-6 flex flex-col gap-2 transition-all duration-300 hover:shadow-lg">
+        <h3 class="font-semibold text-lg mb-2 text-muted">Presupuesto</h3>
+        <p>Presupuesto total: <span class="font-bold">${{ monthlyBudget }}</span></p>
+        <p>Restante: <span class="font-bold">${{ remainingBudget }}</span></p>
+        <div class="w-full bg-muted/10 rounded-full h-4 mt-2 overflow-hidden">
+          <div class="h-full transition-all duration-500" :class="budgetUsedPercent >= 80 ? 'bg-danger' : 'bg-primary'" :style="{ width: budgetUsedPercent + '%' }"></div>
         </div>
-        <p class="progress-text">{{ budgetUsedPercent.toFixed(0) }}% usado</p>
-
-        <p v-if="budgetAlert" class="alert">
-           ¡Has superado el 80% de tu presupuesto mensual!
-        </p>
+        <p class="text-right text-xs mt-1">{{ budgetUsedPercent.toFixed(0) }}% usado</p>
+        <p v-if="budgetAlert" class="text-danger font-bold mt-2 animate-pulse">¡Has superado el 80% de tu presupuesto mensual!</p>
       </div>
 
       <!-- Últimas transacciones -->
-      <div class="card transactions">
-        <h3>Últimas transacciones</h3>
-        <ul>
-          <li v-for="t in latestTransactions" :key="t.id" :class="t.type">
+      <div class="bg-surface rounded-xl shadow-card p-6 flex flex-col gap-2 transition-all duration-300 hover:shadow-lg">
+        <h3 class="font-semibold text-lg mb-2 text-muted">Últimas transacciones</h3>
+        <ul class="divide-y divide-muted/10">
+          <li v-for="t in latestTransactions" :key="t.id" class="flex justify-between items-center py-2 text-sm">
             <span>{{ t.category }} - {{ t.description || 'Sin descripción' }}</span>
-            <strong>{{ t.type === 'income' ? '+' : '-' }}${{ t.amount }}</strong>
+            <strong :class="t.type === 'income' ? 'text-success' : 'text-danger'">{{ t.type === 'income' ? '+' : '-' }}${{ t.amount }}</strong>
           </li>
         </ul>
-        <div class="buttons">
-          <RouterLink to="/transactions" class="btn">Ver todas</RouterLink>
-          <RouterLink to="/add" class="btn primary">Agregar transacción</RouterLink>
+        <div class="flex gap-2 mt-3">
+          <RouterLink to="/transactions" class="flex-1 px-4 py-2 rounded-lg bg-muted/10 hover:bg-primary/10 text-primary font-semibold text-center transition-colors">Ver todas</RouterLink>
+          <RouterLink to="/add" class="flex-1 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold text-center transition-colors">Agregar transacción</RouterLink>
         </div>
       </div>
     </div>
-    <section class="charts-section">
-      <div class="charts-area">
-        <div class="charts-grid">
+
+    <!-- Charts y Proyección -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CategoryChart :selectedMonth="selectedMonth" />
           <MonthlyComparisonChart />
         </div>
       </div>
-
       <!-- Panel de proyección -->
-      <div class="projection-panel">
-        <div class="card projection">
-          <h3>Proyección para {{ nextMonthLabel }}</h3>
-          <p class="muted">Basado en los 2 meses anteriores a <strong>{{ currentMonthLabel }}</strong></p>
-
-          <div class="projection-values">
-            <div class="proj-item">
-              <span>Gasto estimado</span>
-              <p class="amount">${{ projectedExpense }}</p>
-            </div>
-            <div class="proj-item">
-              <span>Ingreso estimado</span>
-              <p class="amount">${{ projectedIncome }}</p>
-            </div>
-            <div class="proj-item balance">
-              <span>Balance proyectado</span>
-              <p :class="{ negative: projectedBalance < 0 }">${{ projectedBalance }}</p>
-            </div>
+      <div class="bg-surface rounded-xl shadow-card p-6 flex flex-col gap-2 transition-all duration-300 hover:shadow-lg">
+        <h3 class="font-semibold text-lg mb-2 text-muted">Proyección para {{ nextMonthLabel }}</h3>
+        <p class="text-xs text-muted mb-2">Basado en los 2 meses anteriores a <strong>{{ currentMonthLabel }}</strong></p>
+        <div class="flex flex-col gap-2 mt-2">
+          <div class="flex justify-between items-center">
+            <span>Gasto estimado</span>
+            <p class="font-bold text-danger">${{ projectedExpense }}</p>
           </div>
-
-          <p class="note">
-            Lógica de la Proyección: promedio de gastos/ingresos de los 2 meses previos.
-          </p>
+          <div class="flex justify-between items-center">
+            <span>Ingreso estimado</span>
+            <p class="font-bold text-success">${{ projectedIncome }}</p>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Balance proyectado</span>
+            <p :class="['font-bold', projectedBalance < 0 ? 'text-danger' : 'text-primary']">${{ projectedBalance }}</p>
+          </div>
         </div>
+        <p class="text-xs text-muted mt-2">Lógica de la Proyección: promedio de gastos/ingresos de los 2 meses previos.</p>
       </div>
     </section>
   </div>
@@ -223,246 +214,12 @@ const projectedBalance = computed(() => projectedIncome.value - projectedExpense
 </script>
 
 <style scoped>
-.month-selector {
-  margin-bottom: 20px;
-  align-items: center;
-  gap: 10px;
+/* Animación para alerta de presupuesto */
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-
-.month-selector label {
-  font-weight: 600;
-  color: #333;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
-
-.month-selector select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-  cursor: pointer;
-  background-color: white;
-  color: #333;
-}
-
-.month-selector select:hover {
-  border-color: #0275d8;
-}
-
-.month-selector select:focus {
-  outline: none;
-  border-color: #0275d8;
-  box-shadow: 0 0 0 3px rgba(2, 117, 216, 0.1);
-}
-
-.dashboard {
-  display: flex;
-  gap: 25px;
-  padding: 20px;
-}
-
-.dashboard-title {
-  color: #0275d8;
-  margin-bottom: 10px;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  align-items: stretch;
-}
-
-/* --- Tarjetas --- */
-.card {
-  background-color: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.card h3 {
-  margin-bottom: 15px;
-  color: #333;
-}
-
-/* --- Balance general --- */
-.summary-values {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-}
-
-.summary-item p {
-  font-weight: bold;
-}
-
-.income p {
-  color: #28a745;
-}
-
-.expense p {
-  color: #dc3545;
-}
-
-.balance p {
-  color: #333;
-}
-
-.balance p.negative {
-  color: #d9534f;
-}
-
-/* --- Presupuesto --- */
-.progress-bar-container {
-  background-color: #eee;
-  border-radius: 10px;
-  height: 15px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: #0275d8;
-  transition: width 0.4s ease;
-}
-
-.progress-bar.warning {
-  background-color: #d9534f;
-}
-
-.progress-text {
-  text-align: right;
-  margin-top: 5px;
-  font-size: 0.9em;
-  color: #555;
-}
-
-.alert {
-  color: #d9534f;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-/* --- Últimas transacciones --- */
-.transactions ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.transactions li {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.transactions li.income strong {
-  color: #28a745;
-}
-
-.transactions li.expense strong {
-  color: #dc3545;
-}
-
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  background-color: #eee;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-}
-
-.btn.primary {
-  background-color: #0275d8;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-/* charts */
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-.chart-container {
-  width: 100%;
-  max-width: 600px;
-  margin: auto;
-  transition: transform 0.3s ease;
-}
-.chart-container:hover {
-  transform: scale(1.03);
-}
-
-/* Layout para charts + proyección */
-.charts-section {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.projection-panel {
-  display: flex;
-  flex-direction: column;
-  width: 25em;
-}
-
-.card.projection {
-  padding: 18px;
-}
-
-.projection .muted {
-  color: #666;
-  font-size: 0.95em;
-  margin-bottom: 12px;
-}
-
-.projection-values {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.proj-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.proj-item .amount {
-  font-weight: 700;
-  font-size: 1.05em;
-}
-
-.proj-item.balance .amount {
-  font-size: 1.1em;
-}
-
-.note {
-  margin-top: 12px;
-  font-size: 0.9em;
-  color: #555;
-}
-
 </style>

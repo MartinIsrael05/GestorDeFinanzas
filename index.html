@@ -1,13 +1,42 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="es">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <link rel="icon" href="/favicon.ico">
+    <title>Gestor de Finanzas</title>
+    <meta name="description" content="Gestor de Finanzas Personales moderno y profesional">
+    <!-- Google Fonts: Inter Variable -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#2563eb',
+              accent: '#22d3ee',
+              success: '#22c55e',
+              warning: '#f59e42',
+              danger: '#ef4444',
+              background: '#f4f6fa',
+              surface: '#fff',
+              muted: '#64748b',
+            },
+            fontFamily: {
+              sans: ['Inter', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
+              display: ['Inter', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
   </head>
-  <body>
-    <div id="app"></div>
+  <body class="bg-background min-h-screen font-sans text-muted antialiased">
+    <div id="app" class="min-h-screen flex flex-col"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
