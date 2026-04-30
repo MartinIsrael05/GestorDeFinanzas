@@ -195,17 +195,25 @@ const { transactions } = storeToRefs(transactionsStore)
 
 const monthLabels = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
+// Generates months dynamically: 3 past months + current + 3 future months
 const availableMonths = computed(() => {
   const months = []
-  for (let i = 0; i < 6; i++) {
-    const month = 11 - i
-    const value = `2025-${String(month).padStart(2,'0')}`
-    months.push({ label: `${monthLabels[month-1]} 2025`, value })
+  const now = new Date()
+  // Start 3 months back, show 7 months total (3 past + current + 3 ahead)
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
+    const y = d.getFullYear()
+    const m = d.getMonth() // 0-based
+    const value = `${y}-${String(m + 1).padStart(2, '0')}`
+    months.push({ label: `${monthLabels[m]} ${y}`, value })
   }
-  return months.reverse()
+  return months
 })
 
-const selectedMonth = ref('2025-11')
+// Default to current month
+const now = new Date()
+const currentMonthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+const selectedMonth = ref(currentMonthValue)
 const currentMonthLabel = computed(() => availableMonths.value.find(m => m.value === selectedMonth.value)?.label || '')
 
 const nextMonthLabel = computed(() => {
