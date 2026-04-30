@@ -1,66 +1,113 @@
 <template>
-  <div class="add-transaction">
-    <h2>Agregar Transacción</h2>
+  <div class="flex flex-col gap-8 animate-fade-up max-w-xl mx-auto">
 
-    <form @submit.prevent="addTransaction">
-      <!-- Tipo -->
-      <div class="form-group">
-        <label for="type">Tipo</label>
-        <select v-model="form.type" id="type">
-          <option value="ingreso">Ingreso</option>
-          <option value="gasto">Gasto</option>
-        </select>
+    <!-- Header -->
+    <div>
+      <p class="text-sm font-medium mb-1 uppercase tracking-widest" style="color: var(--color-primary);">Registro</p>
+      <h1 class="font-display text-4xl font-semibold" style="color: var(--color-text);">Nueva transacción</h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card-glass p-8">
+
+      <!-- Type Toggle -->
+      <div class="mb-7">
+        <label class="block text-xs font-semibold uppercase tracking-widest mb-3" style="color: var(--color-text-muted);">Tipo de movimiento</label>
+        <div class="grid grid-cols-2 gap-2 p-1 rounded-xl" style="background: var(--color-surface-el);">
+          <button
+            type="button"
+            @click="form.type = 'gasto'"
+            class="py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+            :style="{
+              background: form.type === 'gasto' ? 'var(--color-danger)' : 'transparent',
+              color: form.type === 'gasto' ? '#fff' : 'var(--color-text-muted)'
+            }"
+          >↓ Gasto</button>
+          <button
+            type="button"
+            @click="form.type = 'ingreso'"
+            class="py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+            :style="{
+              background: form.type === 'ingreso' ? 'var(--color-primary)' : 'transparent',
+              color: form.type === 'ingreso' ? '#fff' : 'var(--color-text-muted)'
+            }"
+          >↑ Ingreso</button>
+        </div>
       </div>
 
-      <!-- Categoría -->
-      <div class="form-group">
-        <label for="category">Categoría</label>
-        <select id="category" v-model="form.category" required>
-          <option v-for="cat in availableCategories" :key="cat" :value="cat">
-            {{ cat }}
-          </option>
-        </select>
+      <!-- Fields -->
+      <div class="flex flex-col gap-5">
+
+        <!-- Categoría -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-widest mb-2" style="color: var(--color-text-muted);">Categoría</label>
+          <select v-model="form.category" required class="form-field w-full rounded-xl px-4 py-3 text-sm transition-all focus:outline-none">
+            <option value="" disabled>Seleccionar categoría...</option>
+            <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Monto -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-widest mb-2" style="color: var(--color-text-muted);">Monto</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm" style="color: var(--color-text-muted);">$</span>
+            <input
+              type="number"
+              v-model.number="form.amount"
+              min="0"
+              placeholder="0"
+              required
+              class="form-field w-full rounded-xl pl-8 pr-4 py-3 text-sm font-mono transition-all focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-widest mb-2" style="color: var(--color-text-muted);">Descripción <span style="color: var(--color-text-muted); font-weight:400;">(opcional)</span></label>
+          <input
+            type="text"
+            v-model="form.description"
+            placeholder="Ej: Pago de luz, supermercado..."
+            class="form-field w-full rounded-xl px-4 py-3 text-sm transition-all focus:outline-none"
+          />
+        </div>
+
+        <!-- Fecha -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-widest mb-2" style="color: var(--color-text-muted);">Fecha</label>
+          <input
+            type="date"
+            v-model="form.date"
+            required
+            class="form-field w-full rounded-xl px-4 py-3 text-sm font-mono transition-all focus:outline-none"
+          />
+        </div>
       </div>
 
-      <!-- Monto -->
-      <div class="form-group">
-        <label for="amount">Monto</label>
-        <input
-          type="number"
-          id="amount"
-          v-model.number="form.amount"
-          min="0"
-          required
-        />
-      </div>
+      <!-- Submit -->
+      <button
+        type="button"
+        @click="addTransaction"
+        class="mt-8 w-full py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+        :style="{
+          background: form.type === 'ingreso' ? 'var(--color-primary)' : 'var(--color-danger)',
+          color: '#fff',
+          boxShadow: form.type === 'ingreso' ? '0 4px 20px rgba(16,185,129,0.25)' : '0 4px 20px rgba(244,63,94,0.25)'
+        }"
+      >
+        Registrar {{ form.type === 'ingreso' ? 'ingreso' : 'gasto' }}
+      </button>
 
-      <!-- Descripción -->
-      <div class="form-group">
-        <label for="description">Descripción de la transacción</label>
-        <input
-          type="text"
-          id="description"
-          v-model="form.description"
-          placeholder="Ej: Pago de luz, regalo de cumpleaños..."
-        />
-      </div>
-
-      <!-- Fecha -->
-      <div class="form-group">
-        <label for="date">Fecha</label>
-        <input
-          type="date"
-          id="date"
-          v-model="form.date"
-          required
-        />
-      </div>
-
-      <button type="submit">Agregar</button>
-    </form>
-
-    <!-- Mensaje temporal -->
-    <p v-if="message" class="success">{{ message }}</p>
+      <!-- Success message -->
+      <Transition name="slide-up">
+        <div v-if="message" class="mt-4 flex items-center gap-2 p-3 rounded-lg text-sm font-medium" style="background: var(--color-primary-dim); color: var(--color-primary);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ message }}
+        </div>
+      </Transition>
+    </div>
   </div>
 </template>
 
@@ -68,10 +115,8 @@
 import { reactive, computed, ref } from 'vue'
 import { useTransactionsStore } from '../store/transactions'
 
-// Store
 const transactionsStore = useTransactionsStore()
 
-// Formulario reactivo
 const form = reactive({
   type: 'gasto',
   category: '',
@@ -80,109 +125,57 @@ const form = reactive({
   date: '',
 })
 
-// Mensaje temporal
 const message = ref('')
 
-// Categorías por tipo
-const incomeCategories = [
-  'Sueldo', 
-  'Venta', 
-  'Regalo', 
-  'Otros ingresos',
-]
-const expenseCategories = [
-  'Comida',
-  'Transporte',
-  'Entretenimiento',
-  'Servicios',
-  'Otros gastos',
-]
+const incomeCategories  = ['Sueldo', 'Venta', 'Regalo', 'Otros ingresos']
+const expenseCategories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros gastos']
 
-// Computed que devuelve las categorías según el tipo elegido
 const availableCategories = computed(() =>
   form.type === 'ingreso' ? incomeCategories : expenseCategories
 )
 
-// Función para agregar la transacción al store
 function addTransaction() {
   if (!form.category || !form.amount || !form.date) return
 
-  // Mapear tipo a 'income' o 'expense' para el store
-  const type = form.type === 'ingreso' ? 'income' : 'expense'
-
   transactionsStore.addTransaction({
-    type,
-    category: form.category,
-    amount: form.amount,
+    type:        form.type === 'ingreso' ? 'income' : 'expense',
+    category:    form.category,
+    amount:      form.amount,
     description: form.description,
-    date: form.date, 
+    date:        form.date,
   })
 
-  // Mensaje temporal
-  message.value = 'Transacción agregada ;)'
-  setTimeout(() => (message.value = ''), 2000)
+  message.value = '¡Transacción registrada correctamente!'
+  setTimeout(() => (message.value = ''), 3000)
 
-  // Reset del formulario
-  form.category = ''
-  form.amount = null
+  form.category    = ''
+  form.amount      = null
   form.description = ''
-  form.date = ''
+  form.date        = ''
 }
 </script>
 
 <style scoped>
-.add-transaction {
-  max-width: 400px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+.form-field {
+  background: var(--color-surface-el);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+.form-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-dim);
+}
+.form-field::placeholder {
+  color: var(--color-text-muted);
 }
 
-h2 {
-  text-align: center;
-  color: #0275d8;
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-input,
-select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-button {
-  width: 100%;
-  background-color: #0275d8;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0256a3;
-}
-
-.success {
-  margin-top: 10px;
-  color: green;
-  font-weight: bold;
-  text-align: center;
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
 }
 </style>

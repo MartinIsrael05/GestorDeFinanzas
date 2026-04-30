@@ -1,21 +1,47 @@
 <template>
-  <div id="app" class="min-h-screen flex flex-col bg-background">
-    <header class="sticky top-0 z-30 bg-primary text-white shadow-lg">
-      <div class="grid grid-cols-1 md:grid-cols-3 items-center max-w-7xl mx-auto px-4 py-4 gap-2">
-        <h1 class="col-span-1 md:col-span-1 text-3xl md:text-4xl font-extrabold tracking-tight font-display drop-shadow-sm transition-all duration-500">Mi Balance</h1>
-        <nav class="col-span-1 md:col-span-2 flex flex-wrap justify-center md:justify-end gap-2 md:gap-4">
-          <RouterLink to="/" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Inicio</RouterLink>
-          <RouterLink to="/transactions" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Transacciones</RouterLink>
-          <RouterLink to="/add" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Agregar</RouterLink>
-          <RouterLink to="/settings" exact-active-class="active-link" class="px-4 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300">Configuración</RouterLink>
+  <div id="app" class="min-h-screen flex flex-col" style="background: var(--color-bg);">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 border-b" style="background: rgba(15,18,28,0.85); backdrop-filter: blur(16px); border-color: var(--color-border);">
+      <div class="max-w-7xl mx-auto px-6 py-0 flex items-center justify-between h-16">
+        <!-- Logo + Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-primary-dim); border: 1px solid rgba(16,185,129,0.3);">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1.5C4.41 1.5 1.5 4.41 1.5 8s2.91 6.5 6.5 6.5 6.5-2.91 6.5-6.5S11.59 1.5 8 1.5zm.75 9.25H7.25V7.25h1.5v3.5zm0-5H7.25v-1.5h1.5v1.5z" fill="#10b981"/>
+            </svg>
+          </div>
+          <span class="font-display text-xl font-semibold tracking-tight" style="color: var(--color-text);">
+            Mi Balance
+          </span>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex items-center gap-1">
+          <RouterLink
+            v-for="link in navLinks"
+            :key="link.to"
+            :to="link.to"
+            exact-active-class="nav-active"
+            class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            {{ link.label }}
+          </RouterLink>
         </nav>
       </div>
     </header>
-    <main class="flex-1 w-full max-w-7xl mx-auto px-2 md:px-8 py-8 transition-all duration-500">
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-10">
       <RouterView />
     </main>
-    <footer class="bg-surface border-t border-muted py-6 text-center text-muted text-base mt-12 font-medium tracking-wide">
-      &copy; {{ new Date().getFullYear() }} <span class="font-bold">Mi Balance</span>. Todos los derechos reservados.
+
+    <!-- Footer -->
+    <footer class="border-t py-6" style="border-color: var(--color-border);">
+      <div class="max-w-7xl mx-auto px-6 flex items-center justify-between text-xs" style="color: var(--color-text-muted);">
+        <span class="font-display font-medium" style="color: var(--color-text-sub);">Mi Balance</span>
+        <span>&copy; {{ new Date().getFullYear() }} — Desarrollado por <strong style="color: var(--color-text-sub); font-weight:600;">Martín Israel</strong></span>
+      </div>
     </footer>
   </div>
 </template>
@@ -32,14 +58,25 @@ onMounted(() => {
     store.loadFromLocalStorage()
   }
 })
+
+const navLinks = [
+  { to: '/',            label: 'Inicio' },
+  { to: '/transactions',label: 'Transacciones' },
+  { to: '/add',         label: 'Agregar' },
+  { to: '/settings',    label: 'Configuración' },
+]
 </script>
 
 <style>
-.active-link {
-  background-color: rgba(255,255,255,0.18) !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px 0 rgba(37,99,235,0.10);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.08);
-  transition: background-color 0.3s, box-shadow 0.3s, color 0.3s;
+.nav-link {
+  color: var(--color-text-sub);
+}
+.nav-link:hover {
+  color: var(--color-text);
+  background: rgba(255,255,255,0.05);
+}
+.nav-active {
+  color: var(--color-primary) !important;
+  background: var(--color-primary-dim) !important;
 }
 </style>

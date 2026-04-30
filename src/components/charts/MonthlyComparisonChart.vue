@@ -1,6 +1,9 @@
 <template>
-  <div class="chart-container">
-    <canvas ref="chartCanvas"></canvas>
+  <div>
+    <h3 class="font-display text-lg font-semibold mb-5" style="color: var(--color-text);">Comparación mensual</h3>
+    <div class="chart-container">
+      <canvas ref="chartCanvas"></canvas>
+    </div>
   </div>
 </template>
 
@@ -19,8 +22,8 @@ const { monthlySummary } = storeToRefs(store)
 let chartInstance = null
 
 const renderChart = () => {
-  const months = Object.keys(monthlySummary.value)
-  const incomeData = months.map(m => monthlySummary.value[m].income)
+  const months      = Object.keys(monthlySummary.value)
+  const incomeData  = months.map(m => monthlySummary.value[m].income)
   const expenseData = months.map(m => monthlySummary.value[m].expense)
 
   if (chartInstance) chartInstance.destroy()
@@ -33,32 +36,47 @@ const renderChart = () => {
         {
           label: 'Ingresos',
           data: incomeData,
-          backgroundColor: '#4CAF50',
+          backgroundColor: 'rgba(16,185,129,0.8)',
           borderRadius: 6,
+          borderSkipped: false,
         },
         {
           label: 'Gastos',
           data: expenseData,
-          backgroundColor: '#F44336',
+          backgroundColor: 'rgba(244,63,94,0.8)',
           borderRadius: 6,
+          borderSkipped: false,
         },
-      ],
+      ]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { enabled: true },
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#94a3b8',
+            font: { family: 'DM Sans', size: 11 },
+            padding: 16,
+            boxWidth: 12,
+            borderRadius: 4,
+          }
+        },
+        tooltip: { enabled: true }
       },
       scales: {
-        y: { beginAtZero: true, grid: { color: '#eee' } },
-        x: { grid: { display: false } },
+        y: {
+          beginAtZero: true,
+          grid:  { color: 'rgba(42,49,70,0.8)' },
+          ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } }
+        },
+        x: {
+          grid:  { display: false },
+          ticks: { color: '#64748b', font: { family: 'DM Sans', size: 11 } }
+        }
       },
-      animation: {
-        duration: 1500,
-        easing: 'easeOutQuart',
-      },
-    },
+      animation: { duration: 800, easing: 'easeOutQuart' }
+    }
   })
 }
 
@@ -69,12 +87,6 @@ watch(monthlySummary, renderChart)
 <style scoped>
 .chart-container {
   width: 100%;
-  max-width: 600px;
-  margin: auto;
-  transition: transform 0.3s ease;
-}
-
-.chart-container:hover {
-  transform: scale(1.02);
+  max-width: 100%;
 }
 </style>

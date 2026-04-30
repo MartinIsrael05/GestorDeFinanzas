@@ -1,6 +1,49 @@
 @import './base.css';
 
-/* Utilidades específicas, el resto lo maneja Tailwind */
-.green {
-  color: #22c55e;
+/* Utilidades globales */
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+.text-income  { color: var(--color-primary); }
+.text-expense { color: var(--color-danger); }
+.text-gold    { color: var(--color-gold); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.badge-income  { background: var(--color-primary-dim); color: var(--color-primary); }
+.badge-expense { background: var(--color-danger-dim);  color: var(--color-danger); }
+
+/* Animaciones staggered para cards */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* Card glass base */
+.card-glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+}
+.card-glass:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(16,185,129,0.25);
+  transform: translateY(-2px);
+}
+
+/* Separador decorativo */
+.separator {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+  margin: 1rem 0;
 }
